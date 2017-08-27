@@ -1,0 +1,9 @@
+---
+- name: ensure connectivity to all nodes
+  hosts: all
+  tasks:
+    - name: ansible setup
+      action: setup
+      tags: ['ping']
+  any_errors_fatal: true
+  max_fail_percentage: 0
