@@ -27,18 +27,25 @@ type Options struct {
   Provisioner     string
   Environment     string
   Inventory       string
+  KnownHostsFile  string
 }
 
-func setDefaultEnvironmentVariables() {
-  //os.Setenv("ANSIBLE_STDOUT_CALLBACK", "json")
+// sets an environment variable
+func setEnvironmentVariables(variable, value string) {
+  os.Setenv(variable, value)
 }
 
+// appends a string to an existing environment variable
 func appendEnvironmentVariable(variable, value string) {
   old := os.Getenv(variable)
   new := []string{old,value}
   os.Setenv(variable, strings.Join(new, " "))
 }
 
+// Checks if specified ssh config file exists, if not it
+// checks if there is an ssh_config in the specified environment
+// otherwise defaults to no ssh config.
+// appends result to env var ANSIBLE_SSH_ARGS
 func sshConfigFile(options *Options) {
   if options.SSHConfigFile == "" {
     sshConfigFile := filepath.Join(options.Environment, "ssh_config")
@@ -57,6 +64,8 @@ func sshConfigFile(options *Options) {
   }
 }
 
+// if the user specifies an environment we will attempt to ensure that
+// it exists, we will also set the inventory arg to be passed onto ansible.
 func configureEnvironment(options *Options) {
   if options.Environment != "" {
     fi, err := os.Stat(options.Environment)
@@ -79,6 +88,33 @@ func configureEnvironment(options *Options) {
   }
 }
 
+// checks if the user specifies an alternative known hosts file, if not
+// looks for one in the specified environment or just defaults to none.
+func configureKnownHostsFile(options *Options) {
+  if options.KnownHostsFile != "" {
+    if _, err := os.Stat(options.KnownHostsFile); os.IsNotExist(err) {
+      fmt.Println("known hosts file", options.KnownHostsFile, "does not exist")
+      os.Exit(1)
+    }
+  } else {
+    maybeKnownHostsFile := filepath.Join(options.Environment, "ssh_known_hosts")
+    if _, err := os.Stat(maybeKnownHostsFile);! os.IsNotExist(err) {
+      options.KnownHostsFile = maybeKnownHostsFile
+    }
+  }
+  if options.KnownHostsFile != "" {
+    appendEnvironmentVariable("ANSIBLE_SSH_ARGS",
+        fmt.Sprintf("-o UserKnownHostsFile=%s", options.KnownHostsFile))
+  }
+}
+
+// enables ssh agent forwarding
+func configureSSHForwardAgent(options *Options) {
+  if options.SSHForwardAgent {
+    appendEnvironmentVariable("ANSIBLE_SSH_ARGS", "-o ForwardAgent=yes")
+  }
+}
+
 func Run(options *Options, ansibleArgs []string) {
   var (
 		cmdOut []byte
@@ -87,13 +123,16 @@ func Run(options *Options, ansibleArgs []string) {
 
   configureEnvironment(options)
   sshConfigFile(options)
-  setDefaultEnvironmentVariables()
+  configureKnownHostsFile(options)
+  configureSSHForwardAgent(options)
+
   gosibleArgs := []string{"--inventory", options.Inventory}
 
   cmdName := "ansible-playbook"
 	cmdArgs := append(gosibleArgs, ansibleArgs...)
   fmt.Println("running: ansible_playbook", strings.Join(cmdArgs, " "))
 
+  // TODO to switch to streaming output
   cmdOut, err = exec.Command(cmdName, cmdArgs...).CombinedOutput()
   fmt.Println(string(cmdOut))
   if err != nil {

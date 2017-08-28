@@ -46,5 +46,7 @@ func init() {
 	playbookCmd.Flags().BoolVarP(&ao.SSHForwardAgent, "ssh-forward-agent",
 		"f", false, "path to ssh config file to use")
 	playbookCmd.Flags().StringVarP(&ao.Environment, "environment",
-		"e", "", "ansible inventory file")
+		"e", "", "directory that contains ansible inventory")
+	playbookCmd.Flags().StringVarP(&ao.KnownHostsFile, "known-hosts-file",
+		"", "", "location of known hosts file")
 }
