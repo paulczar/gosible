@@ -117,8 +117,9 @@ func configureSSHForwardAgent(options *Options) {
 
 func Run(options *Options, ansibleArgs []string) {
   var (
-		cmdOut []byte
-		err    error
+		cmdOut      []byte
+		err         error
+    gosibleArgs []string
 	)
 
   configureEnvironment(options)
@@ -126,7 +127,10 @@ func Run(options *Options, ansibleArgs []string) {
   configureKnownHostsFile(options)
   configureSSHForwardAgent(options)
 
-  gosibleArgs := []string{"--inventory", options.Inventory}
+  if options.Inventory != "" {
+    gosibleArgs = append(gosibleArgs,
+      []string{"--inventory", options.Inventory}...)
+  }
 
   cmdName := "ansible-playbook"
 	cmdArgs := append(gosibleArgs, ansibleArgs...)

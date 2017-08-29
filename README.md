@@ -4,27 +4,31 @@ A wrapper around ansible to enable additional support for cool stuff.
 
 loosely based off https://github.com/blueboxgroup/ursula-cli
 
-```
+```bash
 $ go build
 
-$ ./gosible help playbook
+$ ./gosible help playbook run
 
 Gosible playbook is a wrapper around ansible-playbook that adds some
 additional useful features.
 
 Usage:
-  gosible playbook [flags] file.yml [ansible-playbook arguments]
+  gosible playbook run [flags] file.yml [ansible-playbook arguments]
 
 Flags:
-  -e, --environment string       directory containing ansible inventory file
-  -h, --help                     help for playbook
-  -s, --ssh-config-file string   Path to ssh config file to use.
-  -f, --ssh-forward-agent        path to ssh config file to use
+  -e, --environment string        directory that contains ansible inventory
+  -h, --help                      help for run
+      --known-hosts-file string   location of known hosts file
+  -s, --ssh-config-file string    Path to ssh config file to use.
+  -f, --ssh-forward-agent         path to ssh config file to use
 
 Global Flags:
       --config string   config file (default is $HOME/.gosible.yaml)
 
-./gosible playbook -e tests/functional/environment tests/functional/playbook/ping.yml  --become  
+
+
+$ ./gosible playbook run -e tests/functional/environment \
+    tests/functional/playbook/ping.yml  --become  
 
 running: ansible_playbook --inventory tests/functional/environment/hosts tests/functional/playbook/ping.yml --become
 PLAY [ensure connectivity to all nodes] ****************************************
