@@ -46,7 +46,7 @@ func appendEnvironmentVariable(variable, value string) {
 // checks if there is an ssh_config in the specified environment
 // otherwise defaults to no ssh config.
 // appends result to env var ANSIBLE_SSH_ARGS
-func sshConfigFile(options *Options) {
+func sshConfigFile(options *Options) error {
   if options.SSHConfigFile == "" {
     sshConfigFile := filepath.Join(options.Environment, "ssh_config")
     if _, err := os.Stat(sshConfigFile); !os.IsNotExist(err) {
@@ -54,46 +54,44 @@ func sshConfigFile(options *Options) {
     }
   } else {
     if _, err := os.Stat(options.SSHConfigFile); os.IsNotExist(err) {
-      fmt.Println("ssh_config file", options.SSHConfigFile, "does not exist")
-      os.Exit(1)
+      return fmt.Errorf("ssh_config file %s does not exist", options.SSHConfigFile)
     }
   }
   if options.SSHConfigFile != "" {
     appendEnvironmentVariable("ANSIBLE_SSH_ARGS",
         fmt.Sprintf("-F %s", options.SSHConfigFile))
   }
+  return nil
 }
 
 // if the user specifies an environment we will attempt to ensure that
 // it exists, we will also set the inventory arg to be passed onto ansible.
-func configureEnvironment(options *Options) {
+func configureEnvironment(options *Options) error {
   if options.Environment != "" {
     fi, err := os.Stat(options.Environment)
     switch {
       case err != nil:
-        fmt.Printf("Environment %s does not exist", options.Environment)
-        os.Exit(1)
+        return fmt.Errorf("Environment %s does not exist", options.Environment)
       case fi.IsDir():
         options.Inventory = filepath.Join(options.Environment, "hosts")
       default:
-        fmt.Println("Environment", options.Environment, "should be a directory")
-        os.Exit(1)
+        return fmt.Errorf("Environment %s should be a directory", options.Environment)
     }
   }
   if options.Inventory != "" {
     if _, err := os.Stat(options.Inventory); os.IsNotExist(err) {
-      fmt.Println("inventory file", options.Inventory, "does not exist")
-      os.Exit(1)
+      return fmt.Errorf("inventory file %s does not exist", options.Inventory)
     }
   }
+  return nil
 }
 
 // checks if the user specifies an alternative known hosts file, if not
 // looks for one in the specified environment or just defaults to none.
-func configureKnownHostsFile(options *Options) {
+func configureKnownHostsFile(options *Options) error {
   if options.KnownHostsFile != "" {
     if _, err := os.Stat(options.KnownHostsFile); os.IsNotExist(err) {
-      fmt.Println("known hosts file", options.KnownHostsFile, "does not exist")
+      return fmt.Errorf("known hosts file %s does not exist", options.KnownHostsFile)
       os.Exit(1)
     }
   } else {
@@ -106,6 +104,7 @@ func configureKnownHostsFile(options *Options) {
     appendEnvironmentVariable("ANSIBLE_SSH_ARGS",
         fmt.Sprintf("-o UserKnownHostsFile=%s", options.KnownHostsFile))
   }
+  return nil
 }
 
 // enables ssh agent forwarding
@@ -115,16 +114,25 @@ func configureSSHForwardAgent(options *Options) {
   }
 }
 
-func Run(options *Options, ansibleArgs []string) {
+func Run(options *Options, ansibleArgs []string) error {
   var (
 		cmdOut      []byte
 		err         error
     gosibleArgs []string
 	)
 
-  configureEnvironment(options)
-  sshConfigFile(options)
-  configureKnownHostsFile(options)
+  err = configureEnvironment(options)
+  if err != nil {
+    return err
+  }
+  err = sshConfigFile(options)
+  if err != nil {
+    return err
+  }
+  err = configureKnownHostsFile(options)
+  if err != nil {
+    return err
+  }
   configureSSHForwardAgent(options)
 
   if options.Inventory != "" {
@@ -143,5 +151,5 @@ func Run(options *Options, ansibleArgs []string) {
 		fmt.Fprintln(os.Stderr, "There was an error running Ansible: ", err)
 		os.Exit(1)
 	}
-	fmt.Println("Successfully ran ansible?")
+  return nil
 }

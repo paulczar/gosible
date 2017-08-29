@@ -31,8 +31,13 @@ additional useful features.
 		if len(args) < 1 {
  			return fmt.Errorf("must specify a playbook to run")
     }
-		playbook.Run(ao,args)
-		return nil
+		err := playbook.Run(ao,args)
+		if err != nil {
+			return err
+		} else {
+			fmt.Println("Successfully ran ansible?")
+			return nil
+		}
 	},
 }
 
