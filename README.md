@@ -41,3 +41,21 @@ There was an error running Ansible:  exit status 4
 ```
 
 > Note: the above as written is expected to fail the actual ansible run.
+
+If you have Vagrant installed you can exercise the vagrant provisioner (Vagrantfile needs to be in current working dir, or in the environment dir):
+
+```
+$ ./gosible playbook run --provisioner=vagrant -e tests/functional/environment tests/functional/playbook/ping.yml --user ubuntu
+running: ansible_playbook --inventory tests/functional/environment/hosts tests/functional/playbook/ping.yml --user ubuntu
+
+PLAY [ensure connectivity to all nodes] ****************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [default]
+
+TASK [ansible setup] ***********************************************************
+ok: [default]
+
+PLAY RECAP *********************************************************************
+default                    : ok=2    changed=0    unreachable=0    failed=0   
+```

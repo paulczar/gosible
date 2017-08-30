@@ -17,3 +17,11 @@ gosible
 
 # ansible stuff
 *.retry
+
+# vagrant stuff
+.vagrant
+*.log
+
+# test stuff
+ssh_known_hosts
+ssh_config

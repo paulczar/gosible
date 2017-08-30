@@ -1,22 +1,12 @@
-// Copyright © 2017 NAME HERE <EMAIL ADDRESS>
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package cmd
 
 import (
+	//"os"
+	"os/exec"
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/paulczar/gosible/ansible/playbook"
+	"github.com/paulczar/gosible/provisioner"
 )
 
 // runCmd represents the run command
@@ -27,17 +17,37 @@ var playbookRunCmd = &cobra.Command{
 Gosible playbook is a wrapper around ansible-playbook that adds some
 additional useful features.
 `,
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		var (
+			err error
+		)
+		// check if ansible-playbook binary exists
+		_, err = exec.LookPath("ansible-playbook")
+		if err != nil {
+			return err
+		}
+		// check if provisioning needs to happen
+		if po.Provisioner != "" {
+			po.Environment = ao.Environment
+			err = provisioner.Up(po)
+			if err != nil {
+				return err
+			}
+		}
+
+
+		return nil
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
  			return fmt.Errorf("must specify a playbook to run")
     }
-		err := playbook.Run(ao,args)
+		err := playbook.Run(ao, args)
 		if err != nil {
 			return err
-		} else {
-			fmt.Println("Successfully ran ansible?")
-			return nil
 		}
+		fmt.Println("Successfully ran ansible?")
+		return nil
 	},
 }
 
@@ -53,4 +63,6 @@ func init() {
 		"e", "", "directory that contains ansible inventory")
 	playbookRunCmd.Flags().StringVarP(&ao.KnownHostsFile, "known-hosts-file",
 		"", "", "location of known hosts file")
+	playbookRunCmd.Flags().StringVarP(&po.Provisioner, "provisioner",
+		"", "", "provisioner (vagrant)")
 }

@@ -14,14 +14,13 @@
 package cmd
 
 import (
-	//"fmt"
-  //"errors"
-	"os/exec"
 	"github.com/spf13/cobra"
 	"github.com/paulczar/gosible/ansible/playbook"
+	"github.com/paulczar/gosible/provisioner"
 )
 
 var ao = &playbook.Options{}
+var po = &provisioner.Options{}
 
 // playbookCmd represents the playbook command
 var playbookCmd = &cobra.Command{
@@ -31,13 +30,6 @@ var playbookCmd = &cobra.Command{
 Gosible playbook is a wrapper around ansible-playbook that adds some
 additional useful features.
 `,
-	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		_, err := exec.LookPath("ansible-playbook")
-		if err != nil {
-		  return err
-		}
-		return nil
-	},
 
 }
 

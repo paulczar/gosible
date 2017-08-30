@@ -1,16 +1,3 @@
-// Copyright © 2017 NAME HERE <EMAIL ADDRESS>
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package playbook
 
 import (
@@ -21,6 +8,7 @@ import (
     "path/filepath"
 )
 
+// Options for running ansible playbook
 type Options struct {
 	SSHConfigFile   string
   SSHForwardAgent bool
@@ -92,7 +80,6 @@ func configureKnownHostsFile(options *Options) error {
   if options.KnownHostsFile != "" {
     if _, err := os.Stat(options.KnownHostsFile); os.IsNotExist(err) {
       return fmt.Errorf("known hosts file %s does not exist", options.KnownHostsFile)
-      os.Exit(1)
     }
   } else {
     maybeKnownHostsFile := filepath.Join(options.Environment, "ssh_known_hosts")
@@ -114,6 +101,7 @@ func configureSSHForwardAgent(options *Options) {
   }
 }
 
+// Run ansible playbook
 func Run(options *Options, ansibleArgs []string) error {
   var (
 		cmdOut      []byte
