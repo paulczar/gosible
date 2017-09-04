@@ -24,6 +24,14 @@ func findVagrantfile(paths []string) (string) {
   return ""
 }
 
+func runVagrantUp() {
+  output, _ := vagrant.Up()
+  // print the output
+  for line := range output {
+    fmt.Println(line)
+  }
+}
+
 // VagrantUp provisioner
 func VagrantUp(po *Options) error {
   var (
@@ -37,6 +45,17 @@ func VagrantUp(po *Options) error {
   }
   vagrant, _ = vagrantutil.NewVagrant(vagrantPath)
   vagrant.Status()
+	switch state := vagrant.State; state {
+    case "NotCreated":
+      runVagrantUp()
+    case "PowerOff":
+      runVagrantUp()
+    case "Running":
+      // do nothing
+    default:
+      return fmt.Errorf("cannot handle vagrant state %s.", state)
+    }
+      
   if vagrant.State == "NotCreated" {
     output, _ := vagrant.Up()
     // print the output

@@ -25,3 +25,5 @@ gosible
 # test stuff
 ssh_known_hosts
 ssh_config
+
+bin/*

@@ -4,17 +4,17 @@ import (
 )
 
 // Options for installing ansible
-type Options struct {
+type InstallOptions struct {
 	Version  string
   Method   string
   Sudo     bool
 }
 
 // Options for installing ansible via pip
-type Pip struct {
+type InstallViaPip struct {
   RequirementsTXT string
   VirtualEnv      string
-  Options
+  InstallOptions
 }
 
 func InstallAnsible() error {

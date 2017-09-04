@@ -15,11 +15,11 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/paulczar/gosible/ansible/playbook"
+	"github.com/paulczar/gosible/ansible"
 	"github.com/paulczar/gosible/provisioner"
 )
 
-var ao = &playbook.Options{}
+var playbookOptions = &ansible.Options{}
 var po = &provisioner.Options{}
 
 // playbookCmd represents the playbook command

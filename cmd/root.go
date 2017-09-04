@@ -35,13 +35,14 @@ var ro = &RootOptions{}
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "gosible",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
+	Short: "Gosible is a wrapper around Ansible",
+	Long: `
+Gosible is a CLI tool designed to implement stronger 
+Infrastructure-as-Code abilities to Ansible.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+https://github.com/paulczar/gosible
+
+`,
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
