@@ -1,24 +1,24 @@
 package ansible
 
 import (
-		"bufio"
-  	"fmt"
-		"os"
-		"os/exec"
-    "strings"
-    "path/filepath"
+  "bufio"
+  "fmt"
+  "os"
+  "os/exec"
+  "strings"
+  "path/filepath"
 )
 
 // Options for running ansible
 type Options struct {
-	SSHConfigFile   string
+  SSHConfigFile   string
   SSHForwardAgent bool
   Provisioner     string
   Environment     string
   Inventory       string
-	KnownHostsFile  string
-	ModuleOptions
-	PlaybookOptions
+  KnownHostsFile  string
+  ModuleOptions
+  PlaybookOptions
 }
 
 // sets an environment variable
@@ -57,43 +57,43 @@ func sshConfigFile(options *Options) error {
 
 // isEnvironment checks if a given directory is a suitable environment
 func isEnvironment(path string) bool {
-	fi, err := os.Stat(path)
-	switch {
-		case err != nil:
-			return false
-		case fi.IsDir():
-		  testInventory := filepath.Join(path, "hosts")
-			if _, err := os.Stat(testInventory); os.IsNotExist(err) {
-				return false
-			} else {
-				return true
-			}
-		default:
-			return false
-	}
+  fi, err := os.Stat(path)
+  switch {
+    case err != nil:
+      return false
+    case fi.IsDir():
+      testInventory := filepath.Join(path, "hosts")
+      if _, err := os.Stat(testInventory); os.IsNotExist(err) {
+        return false
+      } else {
+        return true
+      }
+    default:
+      return false
+  }
 }
 
 // if the user specifies an environment we will attempt to ensure that
 // it exists, we will also set the inventory arg to be passed onto ansible.
 func configureEnvironment(options *Options) error {
-	if options.Environment != "" {
-		if isEnvironment(options.Environment) {
-			options.Inventory = filepath.Join(options.Environment, "hosts")
-		} else {
-			return fmt.Errorf("%s is not a valid environment path", options.Environment)
-		}
-	} else {
-		cwd, _ := os.Getwd()
-		//fmt.Printf("--environment not set.  Trying your working directory (%s)\n", cwd)
-		if isEnvironment(cwd) {
-			options.Environment = cwd
-			options.Inventory = filepath.Join(cwd, "hosts")
-		} else {
-			return fmt.Errorf("%s is not a valid environment path", cwd)
-		}
-	}
+  if options.Environment != "" {
+    if isEnvironment(options.Environment) {
+      options.Inventory = filepath.Join(options.Environment, "hosts")
+    } else {
+      return fmt.Errorf("%s is not a valid environment path", options.Environment)
+    }
+  } else {
+    cwd, _ := os.Getwd()
+    //fmt.Printf("--environment not set.  Trying your working directory (%s)\n", cwd)
+    if isEnvironment(cwd) {
+      options.Environment = cwd
+      options.Inventory = filepath.Join(cwd, "hosts")
+    } else {
+      return fmt.Errorf("%s is not a valid environment path", cwd)
+    }
+  }
 
-	if options.Inventory != "" {
+  if options.Inventory != "" {
     if _, err := os.Stat(options.Inventory); os.IsNotExist(err) {
       return fmt.Errorf("inventory file %s does not exist", options.Inventory)
     }
@@ -129,33 +129,33 @@ func configureSSHForwardAgent(options *Options) {
 }
 
 func init() {
-	// setEnvironmentVariables("ANSIBLE_STDOUT_CALLBACK","json")
+  // setEnvironmentVariables("ANSIBLE_STDOUT_CALLBACK","json")
 }
 
 // runCmd takes a command and args and runs it, streaming output to stdout
 func runCmd(cmdName string, cmdArgs []string) error {
 
-	cmd := exec.Command(cmdName, cmdArgs...)
-	cmdReader, err := cmd.StdoutPipe()
-	if err != nil {
-		return err
-	}
+  cmd := exec.Command(cmdName, cmdArgs...)
+  cmdReader, err := cmd.StdoutPipe()
+  if err != nil {
+    return err
+  }
 
-	scanner := bufio.NewScanner(cmdReader)
-	go func() {
-		for scanner.Scan() {
-			fmt.Printf("%s\n", scanner.Text())
-		}
-	}()
+  scanner := bufio.NewScanner(cmdReader)
+  go func() {
+    for scanner.Scan() {
+      fmt.Printf("%s\n", scanner.Text())
+    }
+  }()
 
-	err = cmd.Start()
-	if err != nil {
-		return err
-	}
+  err = cmd.Start()
+  if err != nil {
+    return err
+  }
 
-	err = cmd.Wait()
-	if err != nil {
-		return err
-	}
-	return nil
+  err = cmd.Wait()
+  if err != nil {
+    return err
+  }
+  return nil
 }

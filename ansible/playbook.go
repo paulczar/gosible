@@ -1,7 +1,7 @@
 package ansible
 
 import (
-//  	"fmt"
+//    "fmt"
 //    "strings"
 )
 
@@ -12,9 +12,9 @@ type PlaybookOptions struct {
 // PlaybookRun ansible playbook
 func PlaybookRun(options *Options, ansibleArgs []string) error {
   var (
-		err         error
+    err         error
     gosibleArgs []string
-	)
+  )
 
   err = configureEnvironment(options)
   if err != nil {
@@ -36,7 +36,7 @@ func PlaybookRun(options *Options, ansibleArgs []string) error {
   }
 
   cmdName := "ansible-playbook"
-	cmdArgs := append(gosibleArgs, ansibleArgs...)
+  cmdArgs := append(gosibleArgs, ansibleArgs...)
   //fmt.Println("running: ansible_playbook", strings.Join(cmdArgs, " "))
 
   return runCmd(cmdName, cmdArgs)

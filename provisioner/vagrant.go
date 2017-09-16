@@ -38,14 +38,14 @@ func VagrantUp(po *Options) error {
     err error
   )
   cwd, _ := os.Getwd()
-  paths := []string{po.Environment, cwd} 
+  paths := []string{po.Environment, cwd}
   vagrantPath := findVagrantfile(paths)
   if vagrantPath == "" {
     return fmt.Errorf("cannot find vagrantfile in %s", paths)
   }
   vagrant, _ = vagrantutil.NewVagrant(vagrantPath)
   vagrant.Status()
-	switch state := vagrant.State; state {
+  switch state := vagrant.State; state {
     case "NotCreated":
       runVagrantUp()
     case "PowerOff":
@@ -55,13 +55,13 @@ func VagrantUp(po *Options) error {
     default:
       return fmt.Errorf("cannot handle vagrant state %s.", state)
     }
-      
+
   if vagrant.State == "NotCreated" {
     output, _ := vagrant.Up()
     // print the output
     for line := range output {
       fmt.Println(line)
-    }    
+    }
   }
   sshConfig, err := (vagrant.SSHConfig())
   if err != nil {

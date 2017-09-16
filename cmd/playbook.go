@@ -14,9 +14,9 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
-	"github.com/paulczar/gosible/ansible"
-	"github.com/paulczar/gosible/provisioner"
+  "github.com/spf13/cobra"
+  "github.com/paulczar/gosible/ansible"
+  "github.com/paulczar/gosible/provisioner"
 )
 
 var playbookOptions = &ansible.Options{}
@@ -24,9 +24,9 @@ var po = &provisioner.Options{}
 
 // playbookCmd represents the playbook command
 var playbookCmd = &cobra.Command{
-	Use:   "playbook",
-	Short: "wrapper around ansible command",
-	Long: `
+  Use:   "playbook",
+  Short: "wrapper around ansible command",
+  Long: `
 Gosible playbook is a wrapper around ansible-playbook that adds some
 additional useful features.
 `,
@@ -34,5 +34,5 @@ additional useful features.
 }
 
 func init() {
-	RootCmd.AddCommand(playbookCmd)
+  RootCmd.AddCommand(playbookCmd)
 }

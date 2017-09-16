@@ -24,7 +24,7 @@ func InstallAnsible() error {
 
 func installAnsibleFromPip() error {
  // TODO
-  return nil 
+  return nil
 }
 
 func installAnsibleFromApt() error {
