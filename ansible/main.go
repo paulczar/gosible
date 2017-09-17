@@ -65,9 +65,8 @@ func isEnvironment(path string) bool {
       testInventory := filepath.Join(path, "hosts")
       if _, err := os.Stat(testInventory); os.IsNotExist(err) {
         return false
-      } else {
-        return true
       }
+      return true
     default:
       return false
   }
@@ -132,9 +131,19 @@ func init() {
   // setEnvironmentVariables("ANSIBLE_STDOUT_CALLBACK","json")
 }
 
+func checkBinInPath(binary string) string {
+  location, err := exec.LookPath(binary)
+  if err != nil {
+    return ""
+  }
+  return location
+}
+
+
 // runCmd takes a command and args and runs it, streaming output to stdout
 func runCmd(cmdName string, cmdArgs []string) error {
-
+  fmt.Printf("==> Running: %s %s\n", cmdName, strings.Join(cmdArgs," "))
+  //return fmt.Errorf("bye")
   cmd := exec.Command(cmdName, cmdArgs...)
   cmdReader, err := cmd.StdoutPipe()
   if err != nil {
