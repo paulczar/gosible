@@ -57,8 +57,8 @@ func Execute() {
 func init() {
   cobra.OnInitialize(initConfig)
 
-  RootCmd.PersistentFlags().StringVar(&ro.cfgFile, "config", "",
-    "config file (default is $HOME/.gosible.yaml)")
+//  RootCmd.PersistentFlags().StringVar(&ro.cfgFile, "config", "",
+//    "config file (default is $HOME/.gosible.yaml)")
 }
 
 
