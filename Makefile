@@ -13,7 +13,7 @@ compile: ## Create the gosible executable in the ./bin directory.
 install: ## Create the kubicorn executable in $GOPATH/bin directory.
 	install -m 0755 bin/gosible ${GOPATH}/bin/gosible
 
-test: test-vagrant test-ping test-adhoc
+test: test test-vagrant test-ping test-adhoc
 
 test-vagrant:
 	go run main.go playbook run -e tests/functional/environment \
