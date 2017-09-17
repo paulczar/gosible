@@ -9,6 +9,8 @@ When running a playbook with Ansible it keys off your inventory file and then us
 
 To do this we wrote a wrapper around Ansible that keys off an environment directory rather than the inventory file, and we keep all environments in git including their `ssh_config`, `ssh_known_hosts` and often a vagrantfile, heat template or ansible playbook for infrastructure provisioning.  Gosible looks for these and if they exist tells Ansible to use them. This also means as an Operator I always know how to SSH into a given environment `$ ssh -F infra/ssh_config elk01`.  It will also if prompted utilize a `requirements.txt` and a `virtualenv` directory in each environment to ensure the right version of ansible (and any other deps like boto or softlayer libs) are installed.
 
+This pattern is what allows a surprisingly small team deploy and operate hundreds of [Openstack](https://github.com/blueboxgroup/ursula) deployments, and their [SRE Operations Platform](https://github.com/IBM/cuttle).
+
 ```
 .
 ├── ansible.cfg
@@ -34,14 +36,6 @@ To do this we wrote a wrapper around Ansible that keys off an environment direct
 │   └── virtualenv
 ```
 
-Gosbile assumes you have a directory that describes the `environment` that you wish to run ansible over.  This
-`environment` path contains at minimum your inventory (`./hosts`) along with any variables (`./group_vars/*`, `./host_vars/*`, etc).
-It can also include an ssh config file `./ssh_config`, and an ssh known hosts file `./ssh_known_hosts`.
-
-It is loosely based off the Bluebox project [ursula-cli](https://github.com/blueboxgroup/ursula-cli) which did much of the same thing and is used to deploy and manage hundreds of [Openstack](https://github.com/blueboxgroup/ursula) deployments, and their [operations platforms](https://github.com/IBM/cuttle).
-
-The goal is to allow you to store everything involved in creating and deploying your infrastructure in git right alongside your Ansible Playbooks/Roles/etc.
-
 ## Install
 
 While we're early on in development the easiest way to install Gosible is by running the following:
@@ -49,6 +43,8 @@ While we're early on in development the easiest way to install Gosible is by run
 ```
 $ go get github.com/paulczar/gosible
 ```
+
+You can also check for [prebuilt binary releases](https://github.com/paulczar/gosible/releases).
 
 ## Example Usage
 
