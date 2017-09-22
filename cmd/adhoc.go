@@ -1,9 +1,10 @@
 package cmd
 
 import (
-  //"os"
-  "os/exec"
+  "os"
   "fmt"
+  "path/filepath"
+  "os/exec"
   "github.com/spf13/cobra"
   "github.com/paulczar/gosible/ansible"
 )
@@ -21,7 +22,22 @@ additional useful features.
   PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
     var (
       err error
+      virtualEnv string
     )
+    // check if there's a virtualenv we should use in your cwd
+    cwd, _ := os.Getwd()
+    virtualEnv = filepath.Join(cwd, "virtualenv/bin")
+    if _, err = os.Stat(virtualEnv); err == nil {
+      os.Setenv("PATH", fmt.Sprintf("%s:%s", virtualEnv, os.Getenv("PATH")))
+    }
+
+    // check if there's a virtualenv we should use in your environment
+    if pingOptions.Environment != cwd {
+      virtualEnv = filepath.Join(pingOptions.Environment, "virtualenv/bin")
+      if _, err = os.Stat(virtualEnv); err == nil {
+        os.Setenv("PATH", fmt.Sprintf("%s:%s", virtualEnv, os.Getenv("PATH")))
+      }
+    }
     // check if ansible-playbook binary exists
     _, err = exec.LookPath("ansible")
     if err != nil {

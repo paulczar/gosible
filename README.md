@@ -9,6 +9,8 @@ When running a playbook with Ansible it keys off your inventory file and then us
 
 To do this we wrote a wrapper around Ansible that keys off an environment directory rather than the inventory file, and we keep all environments in git including their `ssh_config`, `ssh_known_hosts` and often a vagrantfile, heat template or ansible playbook for infrastructure provisioning.  Gosible looks for these and if they exist tells Ansible to use them. This also means as an Operator I always know how to SSH into a given environment `$ ssh -F infra/ssh_config elk01`.  It will also if prompted utilize a `requirements.txt` and a `virtualenv` directory in each environment to ensure the right version of ansible (and any other deps like boto or softlayer libs) are installed.
 
+If you have a virtualenv directory in your current working directory or in the specified environment gosible will add `virtualenv/bin` to your PATH and attempt to use it to run ansible commands.
+
 This pattern is what allows a surprisingly small team deploy and operate hundreds of [Openstack](https://github.com/blueboxgroup/ursula) deployments, and their [SRE Operations Platform](https://github.com/IBM/cuttle).
 
 ```
