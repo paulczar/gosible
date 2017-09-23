@@ -1,0 +1,106 @@
+package ssh
+
+import (
+	"bufio"
+	"fmt"
+	"log"
+	"os"
+	"strings"
+	"crypto/ssh"
+	"github.com/kevinburke/ssh_config"
+)
+
+// SSH settings
+type Options struct {
+	UserName  		string
+	Password		  string
+	Host					string
+	Port      		string
+	SSHConfigFile	string
+}
+
+// sshConfig attempts to read a ssh config file
+func sshConfig(file string) (*ssh_config.Config, error) {
+	f, _ := os.Open(file)
+	cfg, err := ssh_config.Decode(f)
+	if err != nil {
+		return nil, fmt.Errorf("cannot parse %s (%s)", file, err)
+	}
+	return cfg, nil
+}
+
+func get(cfg *ssh_config.Config, alias string, key string) (string, error) {
+	if cfg == nil {
+		return ssh_config.Get(alias, key), nil
+	}
+	return cfg.Get(alias, key)
+}
+
+// SSH into server
+func SSH(options *Options) error {
+  var (
+		cfg *ssh_config.Config
+		err error
+	)
+	if options.SSHConfigFile != "" {
+		cfg, err = sshConfig(options.SSHConfigFile)
+		if err != nil {
+			return err
+		}
+	}
+	
+	server = options.Host + ":" + port
+	fmt.Println(get(cfg, options.Host, "Port"))
+
+	config := &ssh.ClientConfig{
+		User: user,
+		Auth: []ssh.ClientAuth{
+			// ClientAuthPassword wraps a ClientPassword implementation
+			// in a type that implements ClientAuth.
+			ssh.ClientAuthPassword(pass),
+		},
+	}
+	conn, err := ssh.Dial("tcp", server, config)
+	if err != nil {
+		panic("Failed to dial: " + err.Error())
+	}
+	defer conn.Close()
+
+	// Each ClientConn can support multiple interactive sessions,
+	// represented by a Session.
+	session, err := conn.NewSession()
+	if err != nil {
+		panic("Failed to create session: " + err.Error())
+	}
+	defer session.Close()
+
+	// Set IO
+	session.Stdout = os.Stdout
+	session.Stderr = os.Stderr
+	in, _ := session.StdinPipe()
+
+	// Set up terminal modes
+	modes := ssh.TerminalModes{
+		ssh.ECHO:          0,     // disable echoing
+		ssh.TTY_OP_ISPEED: 14400, // input speed = 14.4kbaud
+		ssh.TTY_OP_OSPEED: 14400, // output speed = 14.4kbaud
+	}
+
+	// Request pseudo terminal
+	if err := session.RequestPty("xterm", 80, 40, modes); err != nil {
+		log.Fatalf("request for pseudo terminal failed: %s", err)
+	}
+
+	// Start remote shell
+	if err := session.Shell(); err != nil {
+		log.Fatalf("failed to start shell: %s", err)
+	}
+
+	// Accepting commands
+	for {
+		reader := bufio.NewReader(os.Stdin)
+		str, _ := reader.ReadString('\n')
+		fmt.Fprint(in, str)
+	}
+
+}
